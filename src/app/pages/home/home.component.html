@@ -1,0 +1,68 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <h1 class="mb-4">Welcome to Spa Booking System</h1>
+      
+      <!-- Search Bar -->
+      <div class="row mb-4">
+        <div class="col-md-8">
+          <div class="input-group">
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Search spas..." 
+              [(ngModel)]="searchTerm"
+              (keyup.enter)="searchSpas()">
+            <button 
+              class="btn btn-outline-secondary" 
+              type="button" 
+              (click)="searchSpas()">
+              Search
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div *ngIf="loading" class="text-center">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <!-- Spas Grid -->
+      <div class="row" *ngIf="!loading">
+        <div class="col-md-6 col-lg-4 mb-4" *ngFor="let spa of spas">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">{{ spa.name }}</h5>
+              <p class="card-text">{{ spa.description }}</p>
+              <p class="card-text">
+                <small class="text-muted">{{ spa.address }}</small>
+              </p>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="badge" 
+                      [ngClass]="{
+                        'bg-success': spa.approvalStatus === 'APPROVED',
+                        'bg-warning': spa.approvalStatus === 'PENDING',
+                        'bg-danger': spa.approvalStatus === 'REJECTED'
+                      }">
+                  {{ spa.approvalStatus }}
+                </span>
+                <a [routerLink]="['/spa', spa.id]" class="btn btn-primary btn-sm">
+                  View Details
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Results -->
+      <div *ngIf="!loading && spas.length === 0" class="text-center">
+        <h3>No spas found</h3>
+        <p>Try adjusting your search terms or check back later.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,199 @@
+<div class="container mt-4">
+  <h2>Admin Dashboard</h2>
+  <p class="lead">System overview and management</p>
+
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Total Users</h5>
+          <h2 class="text-primary">{{ stats.totalUsers }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Total Spas</h5>
+          <h2 class="text-success">{{ stats.totalSpas }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Pending Approvals</h5>
+          <h2 class="text-warning">{{ stats.pendingApprovals }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Total Bookings</h5>
+          <h2 class="text-info">{{ stats.totalBookings }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Membership Subscribers Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Membership Subscriptions</h5>
+          <a routerLink="/admin/memberships" class="btn btn-sm btn-outline-primary">
+            Manage Memberships
+          </a>
+        </div>
+        <div class="card-body">
+          <div *ngIf="loadingMemberships" class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          
+          <div *ngIf="!loadingMemberships && memberships.length === 0" class="text-muted">
+            <p>No memberships found.</p>
+          </div>
+
+          <div *ngIf="!loadingMemberships && memberships.length > 0">
+            <div *ngFor="let membership of memberships" class="mb-3 border-bottom pb-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">
+                    <strong>{{ membership.name }}</strong>
+                    <span class="badge bg-secondary ms-2">
+                      {{ getSubscriberCount(membership.id) }} subscriber(s)
+                    </span>
+                  </h6>
+                  <small class="text-muted">{{ membership.description }}</small>
+                  <div class="mt-1">
+                    <small class="text-muted">
+                      ${{ membership.pricePerMonth }}/month | 
+                      {{ membership.discountPercentage }}% discount
+                    </small>
+                  </div>
+                </div>
+                <button 
+                  class="btn btn-sm btn-outline-primary"
+                  (click)="toggleMembershipExpansion(membership.id)"
+                  *ngIf="getSubscriberCount(membership.id) > 0">
+                  <span *ngIf="!isMembershipExpanded(membership.id)">View Subscribers</span>
+                  <span *ngIf="isMembershipExpanded(membership.id)">Hide Subscribers</span>
+                </button>
+              </div>
+
+              <!-- Expanded Subscribers List -->
+              <div *ngIf="isMembershipExpanded(membership.id) && membershipSubscribers[membership.id]" class="mt-3">
+                <div *ngIf="membershipSubscribers[membership.id].length === 0" class="text-muted small">
+                  No subscribers for this membership.
+                </div>
+                <div *ngIf="membershipSubscribers[membership.id].length > 0" class="table-responsive">
+                  <table class="table table-sm table-striped">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let user of membershipSubscribers[membership.id]">
+                        <td>{{ user.firstName }} {{ user.lastName }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.phone }}</td>
+                        <td>
+                          <span class="badge" 
+                                [ngClass]="{
+                                  'bg-success': user.membershipStatus === MembershipStatus.ACTIVE,
+                                  'bg-warning': user.membershipStatus === MembershipStatus.PENDING,
+                                  'bg-danger': user.membershipStatus === MembershipStatus.REJECTED || user.membershipStatus === MembershipStatus.INACTIVE,
+                                  'bg-secondary': user.membershipStatus === null
+                                }">
+                            {{ user.membershipStatus || 'No Membership' }}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5>Quick Actions</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <a routerLink="/admin/spa-approvals" class="btn btn-warning">
+              Review Spa Approvals
+            </a>
+            <a routerLink="/admin/service-approvals" class="btn btn-info">
+              Review Service Approvals
+            </a>
+            <a routerLink="/admin/clients" class="btn btn-primary">
+              Manage Clients
+            </a>
+            <a routerLink="/admin/memberships" class="btn btn-success">
+              Manage Memberships
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5>Recent Spas</h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="loading" class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          <div *ngIf="!loading && spas.length === 0" class="text-muted">
+            <p>No spas found.</p>
+          </div>
+          <div *ngIf="!loading && spas.length > 0">
+            <div *ngFor="let spa of spas.slice(0, 5)" class="mb-3">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">{{ spa.name }}</h6>
+                  <small class="text-muted">{{ spa.address }}</small>
+                  <br>
+                  <small class="text-muted">{{ spa.description }}</small>
+                </div>
+                <div class="ms-2">
+                  <span class="badge" 
+                        [ngClass]="{
+                          'bg-success': spa.approvalStatus === 'APPROVED',
+                          'bg-warning': spa.approvalStatus === 'PENDING',
+                          'bg-danger': spa.approvalStatus === 'REJECTED'
+                        }">
+                    {{ spa.approvalStatus }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="spas.length > 5" class="text-center mt-2">
+              <small class="text-muted">And {{ spas.length - 5 }} more spas...</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

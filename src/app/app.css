@@ -1,0 +1,11 @@
+/* Global styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+main {
+  min-height: calc(100vh - 56px); /* Adjust based on header height */
+  padding-top: 0;
+}

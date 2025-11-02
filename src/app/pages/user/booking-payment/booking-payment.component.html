@@ -1,0 +1,135 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">
+            <i class="bi bi-credit-card"></i> Payment for Booking
+          </h4>
+        </div>
+        <div class="card-body">
+          <!-- Loading State -->
+          <div *ngIf="loading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading booking details...</p>
+          </div>
+
+          <!-- Booking Details -->
+          <div *ngIf="!loading && booking" class="mb-4">
+            <h5>Booking Details</h5>
+            <div class="card bg-light">
+              <div class="card-body">
+                <p class="mb-2"><strong>Service:</strong> {{ booking.serviceName }}</p>
+                <p class="mb-2"><strong>Spa:</strong> {{ booking.spaName }}</p>
+                <p class="mb-2"><strong>Date & Time:</strong> {{ booking.bookingTime | date:'medium' }}</p>
+                <p class="mb-0"><strong>Amount to Pay:</strong> <span class="h4 text-primary">${{ booking.finalPrice }}</span></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> {{ error }}
+            <button type="button" class="btn-close" (click)="error = ''" aria-label="Close"></button>
+          </div>
+
+          <!-- Success Message -->
+          <div *ngIf="success" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> {{ success }}
+            <button type="button" class="btn-close" (click)="success = ''" aria-label="Close"></button>
+          </div>
+
+          <!-- Payment Form -->
+          <form *ngIf="!loading && booking" (ngSubmit)="submitPayment()" #paymentForm="ngForm">
+            <div class="mb-3">
+              <label for="fromUpiId" class="form-label">Your UPI ID (Sender) *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="fromUpiId" 
+                name="fromUpiId"
+                [(ngModel)]="paymentData.fromUpiId" 
+                [placeholder]="'yourname' + atSymbol + 'upi'" 
+                required>
+              <small class="form-text text-muted">Example: yourname{{ atSymbol }}paytm, yourname{{ atSymbol }}phonepe</small>
+            </div>
+
+            <div class="mb-3">
+              <label for="toUpiId" class="form-label">Receiver UPI ID (Client) *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="toUpiId" 
+                name="toUpiId"
+                [(ngModel)]="paymentData.toUpiId" 
+                [placeholder]="'client' + atSymbol + 'upi'" 
+                required>
+              <small class="form-text text-muted">Enter the spa owner's UPI ID</small>
+            </div>
+
+            <div class="mb-3">
+              <label for="toAccountNumber" class="form-label">Receiver Account Number *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="toAccountNumber" 
+                name="toAccountNumber"
+                [(ngModel)]="paymentData.toAccountNumber" 
+                placeholder="Enter account number" 
+                required>
+              <small class="form-text text-muted">Enter the spa owner's account number</small>
+            </div>
+
+            <div class="mb-3">
+              <label for="amount" class="form-label">Amount *</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  id="amount" 
+                  name="amount"
+                  [(ngModel)]="paymentData.amount" 
+                  [readonly]="true"
+                  required>
+              </div>
+              <small class="form-text text-muted">Amount is automatically set from booking</small>
+            </div>
+
+            <div class="mb-3">
+              <label for="remarks" class="form-label">Remarks (Optional)</label>
+              <textarea 
+                class="form-control" 
+                id="remarks" 
+                name="remarks"
+                [(ngModel)]="paymentData.remarks" 
+                rows="3"
+                placeholder="Add any payment remarks..."></textarea>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <button 
+                type="button" 
+                class="btn btn-secondary" 
+                (click)="goBack()"
+                [disabled]="processing">
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                class="btn btn-primary" 
+                [disabled]="!paymentForm.valid || processing || !paymentData.amount">
+                <span *ngIf="processing" class="spinner-border spinner-border-sm me-2"></span>
+                <i *ngIf="!processing" class="bi bi-check-circle me-2"></i>
+                {{ processing ? 'Processing...' : 'Pay Now' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

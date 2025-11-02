@@ -1,0 +1,54 @@
+<div class="container mt-4">
+  <h2>Spa Approvals</h2>
+  <p class="lead">Review and approve spa registrations</p>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && spas.length === 0" class="text-center">
+    <h4>No pending spa approvals</h4>
+    <p>All spas have been reviewed.</p>
+  </div>
+
+  <div *ngIf="!loading && spas.length > 0" class="row">
+    <div class="col-12">
+      <div class="card mb-3" *ngFor="let spa of spas">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-8">
+              <h5 class="card-title">{{ spa.name }}</h5>
+              <p class="card-text">{{ spa.description }}</p>
+              <p class="card-text">
+                <strong>Address:</strong> {{ spa.address }}<br>
+                <strong>Owner ID:</strong> {{ spa.ownerId }}
+              </p>
+            </div>
+            <div class="col-md-4 text-end">
+              <span class="badge fs-6 mb-3" 
+                    [ngClass]="{
+                      'bg-warning': spa.approvalStatus === 'PENDING',
+                      'bg-success': spa.approvalStatus === 'APPROVED',
+                      'bg-danger': spa.approvalStatus === 'REJECTED'
+                    }">
+                {{ spa.approvalStatus }}
+              </span>
+              <div class="d-grid gap-2">
+                <button class="btn btn-success" 
+                        (click)="approveSpa(spa.id, ApprovalStatus.APPROVED)">
+                  Approve
+                </button>
+                <button class="btn btn-danger" 
+                        (click)="approveSpa(spa.id, ApprovalStatus.REJECTED)">
+                  Reject
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

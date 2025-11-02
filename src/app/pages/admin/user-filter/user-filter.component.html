@@ -1,0 +1,125 @@
+<div class="container mt-4">
+  <h2>User Filter</h2>
+  <p class="lead">Filter users by membership status or membership type</p>
+
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5>Filter Options</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">Filter Type</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="filterType" 
+                     id="statusFilter" value="status" [(ngModel)]="filterType">
+              <label class="form-check-label" for="statusFilter">
+                By Membership Status
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="filterType" 
+                     id="membershipFilter" value="membership" [(ngModel)]="filterType">
+              <label class="form-check-label" for="membershipFilter">
+                By Membership Type
+              </label>
+            </div>
+          </div>
+
+          <div *ngIf="filterType === 'status'" class="mb-3">
+            <label for="statusSelect" class="form-label">Membership Status</label>
+            <select class="form-select" id="statusSelect" [(ngModel)]="selectedStatus">
+              <option [value]="null">Select Status</option>
+              <option [value]="MembershipStatus.ACTIVE">Active</option>
+              <option [value]="MembershipStatus.PENDING">Pending</option>
+              <option [value]="MembershipStatus.REJECTED">Rejected</option>
+              <option [value]="MembershipStatus.INACTIVE">Inactive</option>
+            </select>
+            <button class="btn btn-primary mt-2" (click)="filterByStatus()" 
+                    [disabled]="!selectedStatus">
+              Filter
+            </button>
+          </div>
+
+          <div *ngIf="filterType === 'membership'" class="mb-3">
+            <label for="membershipSelect" class="form-label">Membership Type</label>
+            <select class="form-select" id="membershipSelect" [(ngModel)]="selectedMembershipId">
+              <option [value]="null">Select Membership</option>
+              <option [value]="1">Basic</option>
+              <option [value]="2">Premium</option>
+              <option [value]="3">VIP</option>
+            </select>
+            <button class="btn btn-primary mt-2" (click)="filterByMembership()" 
+                    [disabled]="!selectedMembershipId">
+              Filter
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && users.length === 0" class="text-center">
+    <h4>No users found</h4>
+    <p>Try adjusting your filter criteria.</p>
+  </div>
+
+  <div *ngIf="!loading && users.length > 0" class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Role</th>
+                  <th>Membership</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let user of users">
+                  <td>{{ user.firstName }} {{ user.lastName }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.phone }}</td>
+                  <td>
+                    <span class="badge" 
+                          [ngClass]="{
+                            'bg-primary': user.role === 'USER',
+                            'bg-success': user.role === 'CLIENT',
+                            'bg-danger': user.role === 'ADMIN'
+                          }">
+                      {{ user.role }}
+                    </span>
+                  </td>
+                  <td>{{ user.membershipName || 'None' }}</td>
+                  <td>
+                    <span *ngIf="user.membershipStatus" class="badge" 
+                          [ngClass]="{
+                            'bg-success': user.membershipStatus === 'ACTIVE',
+                            'bg-warning': user.membershipStatus === 'PENDING',
+                            'bg-danger': user.membershipStatus === 'REJECTED',
+                            'bg-secondary': user.membershipStatus === 'INACTIVE'
+                          }">
+                      {{ user.membershipStatus }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

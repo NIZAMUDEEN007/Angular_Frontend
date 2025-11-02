@@ -1,0 +1,64 @@
+<div class="container mt-4" *ngIf="!loading && spa">
+  <div class="row">
+    <div class="col-12">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a routerLink="/">Home</a></li>
+          <li class="breadcrumb-item active">{{ spa.name }}</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <h1>{{ spa.name }}</h1>
+      <p class="lead">{{ spa.description }}</p>
+      <p><strong>Address:</strong> {{ spa.address }}</p>
+      
+      <div class="mt-4">
+        <h3>Services</h3>
+        <div class="row" *ngIf="spa.services.length > 0">
+          <div class="col-md-6 mb-3" *ngFor="let service of spa.services">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">{{ service.name }}</h5>
+                <p class="card-text">{{ service.description }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="text-muted">{{ service.durationInMinutes }} minutes</span>
+                  <span class="h5 text-primary">${{ service.price }}</span>
+                </div>
+                <div class="mt-2 d-flex justify-content-between align-items-center">
+                  <span class="badge" 
+                        [ngClass]="{
+                          'bg-success': service.serviceStatus === 'AVAILABLE',
+                          'bg-danger': service.serviceStatus === 'UNAVAILABLE'
+                        }">
+                    {{ service.serviceStatus }}
+                  </span>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm"
+                            [ngClass]="wishlistedServiceIds.has(service.id) ? 'btn-danger' : 'btn-outline-danger'"
+                            (click)="toggleWishlist(service.id)"
+                            aria-label="Toggle wishlist">
+                      ❤
+                    </button>
+                    <button class="btn btn-primary btn-sm" (click)="goToBooking(service.id)" [disabled]="service.serviceStatus !== 'AVAILABLE'">Book</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p *ngIf="spa.services.length === 0" class="text-muted">No services available.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div *ngIf="loading" class="text-center mt-5">
+  <div class="spinner-border" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>

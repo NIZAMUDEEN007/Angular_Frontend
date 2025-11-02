@@ -1,0 +1,3 @@
+/* minimal styling for slot buttons */
+.btn + .btn { margin-left: 0.5rem; }
+

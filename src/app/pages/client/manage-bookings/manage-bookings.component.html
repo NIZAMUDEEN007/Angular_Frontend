@@ -1,0 +1,85 @@
+<div class="container mt-4">
+  <h2>Manage Bookings</h2>
+  
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-primary" 
+                [class.active]="selectedStatus === null"
+                (click)="filterByStatus(null)">
+          All
+        </button>
+        <button type="button" class="btn btn-outline-warning" 
+                [class.active]="selectedStatus === BookingStatus.PENDING"
+                (click)="filterByStatus(BookingStatus.PENDING)">
+          Pending
+        </button>
+        <button type="button" class="btn btn-outline-success" 
+                [class.active]="selectedStatus === BookingStatus.CONFIRMED"
+                (click)="filterByStatus(BookingStatus.CONFIRMED)">
+          Confirmed
+        </button>
+        <button type="button" class="btn btn-outline-danger" 
+                [class.active]="selectedStatus === BookingStatus.CANCELLED_BY_USER"
+                (click)="filterByStatus(BookingStatus.CANCELLED_BY_USER)">
+          Cancelled by user
+        </button>
+        <button type="button" class="btn btn-outline-secondary" 
+                [class.active]="selectedStatus === BookingStatus.DECLINED_BY_CLIENT"
+                (click)="filterByStatus(BookingStatus.DECLINED_BY_CLIENT)">
+          Declined by client
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && bookings.length === 0" class="text-center">
+    <h4>No bookings found</h4>
+    <p>No bookings match your current filter.</p>
+  </div>
+
+  <div *ngIf="!loading && bookings.length > 0" class="row">
+    <div class="col-12">
+      <div class="card" *ngFor="let booking of bookings">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-8">
+              <h5 class="card-title">{{ booking.serviceName }}</h5>
+              <p class="card-text">
+                <strong>Customer:</strong> {{ booking.customerName }}<br>
+                <strong>Date & Time:</strong> {{ booking.bookingTime | date:'medium' }}<br>
+                <strong>Price:</strong> ${{ booking.finalPrice }}
+              </p>
+            </div>
+            <div class="col-md-4 text-end">
+              <span class="badge fs-6 mb-2" 
+                    [ngClass]="{
+                      'bg-warning': booking.status === 'PENDING',
+                      'bg-success': booking.status === 'CONFIRMED',
+                      'bg-danger': booking.status === 'CANCELLED_BY_USER' || booking.status === 'DECLINED_BY_CLIENT'
+                    }">
+                {{ booking.status }}
+              </span>
+              <div *ngIf="booking.status === 'PENDING'">
+                <button class="btn btn-success btn-sm me-2" 
+                        (click)="updateBookingStatus(booking.id, BookingStatus.CONFIRMED)">
+                  Confirm
+                </button>
+                <button class="btn btn-danger btn-sm" 
+                        (click)="updateBookingStatus(booking.id, BookingStatus.DECLINED_BY_CLIENT)">
+                  Decline
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

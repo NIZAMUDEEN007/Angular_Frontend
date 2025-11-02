@@ -1,0 +1,55 @@
+<div class="container mt-4">
+  <h2>Service Approvals</h2>
+  <p class="lead">Review and approve service registrations</p>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && services.length === 0" class="text-center">
+    <h4>No pending service approvals</h4>
+    <p>All services have been reviewed.</p>
+  </div>
+
+  <div *ngIf="!loading && services.length > 0" class="row">
+    <div class="col-12">
+      <div class="card mb-3" *ngFor="let service of services">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-8">
+              <h5 class="card-title">{{ service.name }}</h5>
+              <p class="card-text">{{ service.description }}</p>
+              <p class="card-text">
+                <strong>Price:</strong> ${{ service.price }}<br>
+                <strong>Duration:</strong> {{ service.durationInMinutes }} minutes<br>
+                <strong>Spa ID:</strong> {{ service.spaId }}
+              </p>
+            </div>
+            <div class="col-md-4 text-end">
+              <span class="badge fs-6 mb-3" 
+                    [ngClass]="{
+                      'bg-warning': service.approvalStatus === 'PENDING',
+                      'bg-success': service.approvalStatus === 'APPROVED',
+                      'bg-danger': service.approvalStatus === 'REJECTED'
+                    }">
+                {{ service.approvalStatus }}
+              </span>
+              <div class="d-grid gap-2">
+                <button class="btn btn-success" 
+                        (click)="approveService(service.id, ApprovalStatus.APPROVED)">
+                  Approve
+                </button>
+                <button class="btn btn-danger" 
+                        (click)="approveService(service.id, ApprovalStatus.REJECTED)">
+                  Reject
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

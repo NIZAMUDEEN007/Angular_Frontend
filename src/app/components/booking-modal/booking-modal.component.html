@@ -1,0 +1,51 @@
+<div class="modal fade" [class.show]="isVisible" [style.display]="isVisible ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Book Service</h5>
+        <button type="button" class="btn-close" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="createBooking()" #bookingForm="ngForm">
+          <div class="mb-3">
+            <label for="date" class="form-label">Select Date</label>
+            <input type="date" class="form-control" id="date" name="date" 
+                   [(ngModel)]="selectedDate" (change)="onDateChange()" required>
+          </div>
+
+          <div class="mb-3" *ngIf="availableSlots.length > 0">
+            <label for="time" class="form-label">Select Time</label>
+            <select class="form-select" id="time" name="time" 
+                    [(ngModel)]="bookingData.bookingTime" required>
+              <option value="">Choose a time slot</option>
+              <option *ngFor="let slot of availableSlots" [value]="slot">
+                {{ slot }}
+              </option>
+            </select>
+          </div>
+
+          <div *ngIf="selectedDate && availableSlots.length === 0" class="alert alert-warning">
+            No available time slots for the selected date.
+          </div>
+
+          <div *ngIf="error" class="alert alert-danger">
+            {{ error }}
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary" 
+                (click)="createBooking()" 
+                [disabled]="!bookingForm.valid || loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+          Book Now
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="isVisible" class="modal-backdrop fade show"></div>

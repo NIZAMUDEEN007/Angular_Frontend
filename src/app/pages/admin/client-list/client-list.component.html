@@ -1,0 +1,66 @@
+<div class="container mt-4">
+  <h2>Client Management</h2>
+  <p class="lead">Manage spa owners and clients</p>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && clients.length === 0" class="text-center">
+    <h4>No clients found</h4>
+  </div>
+
+  <div *ngIf="!loading && clients.length > 0" class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Role</th>
+                  <th>Membership</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let client of clients">
+                  <td>{{ client.firstName }} {{ client.lastName }}</td>
+                  <td>{{ client.email }}</td>
+                  <td>{{ client.phone }}</td>
+                  <td>
+                    <span class="badge" 
+                          [ngClass]="{
+                            'bg-primary': client.role === 'USER',
+                            'bg-success': client.role === 'CLIENT',
+                            'bg-danger': client.role === 'ADMIN'
+                          }">
+                      {{ client.role }}
+                    </span>
+                  </td>
+                  <td>{{ client.membershipName || 'None' }}</td>
+                  <td>
+                    <span *ngIf="client.membershipStatus" class="badge" 
+                          [ngClass]="{
+                            'bg-success': client.membershipStatus === 'ACTIVE',
+                            'bg-warning': client.membershipStatus === 'PENDING',
+                            'bg-danger': client.membershipStatus === 'REJECTED',
+                            'bg-secondary': client.membershipStatus === 'INACTIVE'
+                          }">
+                      {{ client.membershipStatus }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

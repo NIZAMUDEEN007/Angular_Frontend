@@ -1,0 +1,260 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h2>Client Dashboard</h2>
+      <p class="lead">Manage your spa business</p>
+    </div>
+    <button class="btn btn-outline-primary" (click)="openProfileForm()" [disabled]="showProfileForm">
+      <i class="bi bi-pencil"></i> Edit Profile
+    </button>
+  </div>
+
+  <!-- Profile Success Message -->
+  <div *ngIf="profileSuccess" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+    <i class="bi bi-check-circle"></i> {{ profileSuccess }}
+    <button type="button" class="btn-close" (click)="profileSuccess = ''"></button>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5>My Spas</h5>
+          <button class="btn btn-primary btn-sm" (click)="openAddSpaForm()">
+            <i class="bi bi-plus"></i> Add Spa
+          </button>
+        </div>
+        <div class="card-body">
+          <div *ngIf="spas.length === 0" class="text-center">
+            <p>You haven't added any spas yet.</p>
+            <button class="btn btn-primary" (click)="openAddSpaForm()">Add Your First Spa</button>
+          </div>
+          <div *ngFor="let spa of spas" class="mb-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="flex-grow-1" style="cursor: pointer;" (click)="viewSpaDetails(spa.id)">
+                <h6>{{ spa.name }}</h6>
+                <small class="text-muted">{{ spa.address }}</small>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge" 
+                      [ngClass]="{
+                        'bg-success': spa.approvalStatus === 'APPROVED',
+                        'bg-warning': spa.approvalStatus === 'PENDING',
+                        'bg-danger': spa.approvalStatus === 'REJECTED'
+                      }">
+                  {{ spa.approvalStatus }}
+                </span>
+                <button class="btn btn-sm btn-outline-primary" (click)="viewSpaDetails(spa.id)">
+                  Manage
+                </button>
+                <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/client/spa', spa.id, 'bookings']">
+                  View bookings
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5>Recent Bookings</h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="recentBookings.length === 0" class="text-center">
+            <p>No recent bookings.</p>
+          </div>
+          <div *ngFor="let booking of recentBookings" class="mb-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6>{{ booking.serviceName }}</h6>
+                <small class="text-muted">{{ booking.bookingTime | date:'short' }}</small>
+              </div>
+              <span class="badge" 
+                    [ngClass]="{
+                      'bg-warning': booking.status === 'PENDING',
+                      'bg-success': booking.status === 'CONFIRMED',
+                      'bg-danger': booking.status === 'CANCELLED_BY_USER' || booking.status === 'DECLINED_BY_CLIENT'
+                    }">
+                {{ booking.status }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Edit Form -->
+  <div *ngIf="showProfileForm" class="row mt-4">
+    <div class="col-md-8 mx-auto">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5>Update Profile Information</h5>
+          <button class="btn btn-outline-secondary btn-sm" (click)="cancelProfileEdit()">
+            <i class="bi bi-x"></i> Cancel
+          </button>
+        </div>
+        <div class="card-body">
+          <!-- Profile Error Message -->
+          <div *ngIf="profileError" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> {{ profileError }}
+            <button type="button" class="btn-close" (click)="profileError = ''"></button>
+          </div>
+
+          <form (ngSubmit)="updateProfile()" #profileForm="ngForm">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="profileFirstName" class="form-label">First Name *</label>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    id="profileFirstName" 
+                    name="profileFirstName"
+                    [(ngModel)]="profileData.firstName" 
+                    required
+                    placeholder="Enter first name">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="profileLastName" class="form-label">Last Name *</label>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    id="profileLastName" 
+                    name="profileLastName"
+                    [(ngModel)]="profileData.lastName" 
+                    required
+                    placeholder="Enter last name">
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="profilePhone" class="form-label">Phone *</label>
+              <input 
+                type="tel" 
+                class="form-control" 
+                id="profilePhone" 
+                name="profilePhone"
+                [(ngModel)]="profileData.phone" 
+                required
+                placeholder="Enter phone number">
+            </div>
+
+            <div class="mb-3" *ngIf="currentUser">
+              <label class="form-label">Account Information</label>
+              <p class="text-muted mb-0"><strong>Email:</strong> {{ currentUser.email }}</p>
+              <p class="text-muted mb-0"><strong>Role:</strong> {{ currentUser.role }}</p>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button 
+                type="submit" 
+                class="btn btn-primary"
+                [disabled]="updatingProfile || !profileForm.form.valid">
+                <span *ngIf="updatingProfile" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                <i *ngIf="!updatingProfile" class="bi bi-check"></i>
+                {{ updatingProfile ? 'Updating...' : 'Update Profile' }}
+              </button>
+              <button 
+                type="button" 
+                class="btn btn-outline-secondary"
+                (click)="cancelProfileEdit()"
+                [disabled]="updatingProfile">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Spa Form -->
+  <div *ngIf="showAddSpaForm" class="row mt-4">
+    <div class="col-md-8 mx-auto">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5>Add New Spa</h5>
+          <button class="btn btn-outline-secondary btn-sm" (click)="cancelAddSpa()">
+            <i class="bi bi-x"></i> Cancel
+          </button>
+        </div>
+        <div class="card-body">
+          <!-- Success Message -->
+          <div *ngIf="success" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> {{ success }}
+            <button type="button" class="btn-close" (click)="success = ''"></button>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> {{ error }}
+            <button type="button" class="btn-close" (click)="error = ''"></button>
+          </div>
+
+          <form (ngSubmit)="addSpa()" #spaForm="ngForm">
+            <div class="mb-3">
+              <label for="spaName" class="form-label">Spa Name *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="spaName" 
+                name="spaName"
+                [(ngModel)]="newSpa.name" 
+                required
+                placeholder="Enter spa name">
+            </div>
+
+            <div class="mb-3">
+              <label for="spaAddress" class="form-label">Address *</label>
+              <textarea 
+                class="form-control" 
+                id="spaAddress" 
+                name="spaAddress"
+                [(ngModel)]="newSpa.address" 
+                required
+                rows="3"
+                placeholder="Enter complete address"></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label for="spaDescription" class="form-label">Description *</label>
+              <textarea 
+                class="form-control" 
+                id="spaDescription" 
+                name="spaDescription"
+                [(ngModel)]="newSpa.description" 
+                required
+                rows="4"
+                placeholder="Describe your spa, services, and what makes it special"></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button 
+                type="submit" 
+                class="btn btn-primary"
+                [disabled]="addingSpa || !spaForm.form.valid">
+                <span *ngIf="addingSpa" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                <i *ngIf="!addingSpa" class="bi bi-plus"></i>
+                {{ addingSpa ? 'Adding...' : 'Add Spa' }}
+              </button>
+              <button 
+                type="button" 
+                class="btn btn-outline-secondary"
+                (click)="cancelAddSpa()"
+                [disabled]="addingSpa">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

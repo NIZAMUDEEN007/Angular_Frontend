@@ -1,0 +1,68 @@
+<div class="container mt-4">
+  <h2>My Bookings</h2>
+  
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && bookings.length === 0" class="text-center">
+    <h4>No bookings found</h4>
+    <p>You haven't made any bookings yet.</p>
+  </div>
+
+  <div *ngIf="!loading && bookings.length > 0" class="row">
+    <div class="col-12">
+      <div class="card" *ngFor="let booking of bookings">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-8">
+              <h5 class="card-title">{{ booking.serviceName }}</h5>
+              <p class="card-text">
+                <strong>Spa:</strong> {{ booking.spaName }}<br>
+                <strong>Date & Time:</strong> {{ booking.bookingTime | date:'medium' }}<br>
+                <strong>Price:</strong> ${{ booking.finalPrice }}
+              </p>
+            </div>
+            <div class="col-md-4 text-end">
+              <span class="badge fs-6" 
+                    [ngClass]="{
+                      'bg-warning': booking.status === 'PENDING',
+                      'bg-success': booking.status === 'CONFIRMED',
+                      'bg-danger': booking.status === 'CANCELLED_BY_USER' || booking.status === 'DECLINED_BY_CLIENT'
+                    }">
+                {{ booking.status }}
+              </span>
+              <div class="mt-2 d-flex flex-column gap-2 align-items-end">
+                <!-- Pay Now button - for CONFIRMED bookings that haven't been paid yet -->
+                <button 
+                  *ngIf="canPayForBooking(booking)"
+                  class="btn btn-success btn-sm"
+                  (click)="goToPayment(booking.id)">
+                  <i class="bi bi-credit-card"></i> Pay Now
+                </button>
+                
+                <!-- Payment Status Badge -->
+                <span *ngIf="booking.paymentStatus === 'COMPLETED'" class="badge bg-success">
+                  <i class="bi bi-check-circle"></i> Paid
+                </span>
+                <span *ngIf="booking.paymentStatus === 'PENDING' && booking.status === 'CONFIRMED'" class="badge bg-warning">
+                  Payment Pending
+                </span>
+                
+                <!-- Cancel button - only for PENDING bookings -->
+                <button 
+                  *ngIf="booking.status === 'PENDING'"
+                  class="btn btn-outline-danger btn-sm"
+                  (click)="cancelBooking(booking.id)">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

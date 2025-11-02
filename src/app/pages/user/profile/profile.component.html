@@ -1,0 +1,165 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <h2>Welcome back, {{ currentUser?.firstName }}!</h2>
+      <p class="lead">Manage your account and spa bookings</p>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-center h-100">
+        <div class="card-body">
+          <i class="bi bi-calendar-check fs-1 text-primary mb-3"></i>
+          <h5 class="card-title">My Bookings</h5>
+          <p class="card-text">View and manage your spa appointments</p>
+          <a routerLink="/user/my-bookings" class="btn btn-primary" (click)="navigateToBookings()">View Bookings</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center h-100">
+        <div class="card-body">
+          <i class="bi bi-heart fs-1 text-danger mb-3"></i>
+          <h5 class="card-title">Wishlist</h5>
+          <p class="card-text">Save your favorite spa services</p>
+          <a routerLink="/user/wishlist" class="btn btn-outline-danger" (click)="navigateToWishlist()">View Wishlist</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center h-100">
+        <div class="card-body">
+          <i class="bi bi-star fs-1 text-warning mb-3"></i>
+          <h5 class="card-title">Membership</h5>
+          <p class="card-text">Manage your membership benefits</p>
+          <a routerLink="/user/membership" class="btn btn-outline-warning" (click)="navigateToMembership()">View Membership</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center h-100">
+        <div class="card-body">
+          <i class="bi bi-search fs-1 text-info mb-3"></i>
+          <h5 class="card-title">Find Spas</h5>
+          <p class="card-text">Discover new spa experiences</p>
+          <a routerLink="/" class="btn btn-outline-info" (click)="navigateToBrowseSpas()">Browse Spas</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5>Personal Information</h5>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="onSubmit()" #profileForm="ngForm">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="firstName" class="form-label">First Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="firstName"
+                    name="firstName"
+                    [(ngModel)]="profileData.firstName"
+                    required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="lastName" class="form-label">Last Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="lastName"
+                    name="lastName"
+                    [(ngModel)]="profileData.lastName"
+                    required>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="phone" class="form-label">Phone</label>
+              <input
+                type="tel"
+                class="form-control"
+                id="phone"
+                name="phone"
+                [(ngModel)]="profileData.phone"
+                required>
+            </div>
+
+            <div *ngIf="success" class="alert alert-success">
+              {{ success }}
+            </div>
+
+            <div *ngIf="error" class="alert alert-danger">
+              {{ error }}
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="profileForm.invalid || loading">
+              <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+              Update Profile
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h5>Account Information</h5>
+        </div>
+        <div class="card-body" *ngIf="currentUser">
+          <p><strong>Email:</strong> {{ currentUser.email }}</p>
+          <p><strong>Role:</strong> {{ currentUser.role }}</p>
+          <p *ngIf="currentUser.membershipName">
+            <strong>Membership:</strong> {{ currentUser.membershipName }}
+          </p>
+          <p *ngIf="currentUser.membershipStatus">
+            <strong>Status:</strong> 
+            <span class="badge" 
+                  [ngClass]="{
+                    'bg-success': currentUser.membershipStatus === 'ACTIVE',
+                    'bg-warning': currentUser.membershipStatus === 'PENDING',
+                    'bg-danger': currentUser.membershipStatus === 'REJECTED',
+                    'bg-secondary': currentUser.membershipStatus === 'INACTIVE'
+                  }">
+              {{ currentUser.membershipStatus }}
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="card mt-3">
+        <div class="card-header">
+          <h5>Quick Stats</h5>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-6">
+              <h4 class="text-primary">{{ stats.totalBookings }}</h4>
+              <small class="text-muted">Bookings</small>
+            </div>
+            <div class="col-6">
+              <h4 class="text-danger">{{ stats.wishlistItems }}</h4>
+              <small class="text-muted">Wishlist</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,127 @@
+<div class="container mt-4">
+  <h2>Membership</h2>
+  
+  <div *ngIf="success" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle"></i> {{ success }}
+    <button type="button" class="btn-close" (click)="success = ''" aria-label="Close"></button>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+    <button type="button" class="btn-close" (click)="error = ''" aria-label="Close"></button>
+  </div>
+
+  <!-- Available Memberships Section - Only shows when there's an ACTIVE membership -->
+  <div *ngIf="hasActiveMembership()">
+    <h4>Available Memberships</h4>
+    <p>Your active membership plan:</p>
+    
+    <div class="row">
+      <div class="col-md-4 mb-4" *ngIf="getSubscribedMembership() as subscribedMembership">
+        <div class="card h-100 border-success">
+          <div class="card-body text-center">
+            <h5 class="card-title">{{ subscribedMembership.name }}</h5>
+            <h3 class="text-primary">${{ subscribedMembership.pricePerMonth }}/month</h3>
+            <p class="card-text">{{ subscribedMembership.description }}</p>
+            
+            <div class="mb-2">
+              <span class="badge bg-success mb-2">Active</span>
+              <p class="text-muted small mb-2">
+                Status: 
+                <span class="badge bg-success">ACTIVE</span>
+              </p>
+            </div>
+            
+            <div class="d-flex gap-2 justify-content-center">
+              <button 
+                type="button"
+                class="btn btn-outline-danger"
+                (click)="unsubscribeFromMembership(subscribedMembership.id, $event); $event.preventDefault(); $event.stopPropagation()"
+                [disabled]="subscribing">
+                <span *ngIf="subscribing" class="spinner-border spinner-border-sm me-2"></span>
+                <i *ngIf="!subscribing" class="bi bi-x-circle me-1"></i>
+                Unsubscribe
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- All Memberships - Always visible -->
+  <h4>All Memberships</h4>
+  <p *ngIf="!hasActiveMembership()">Choose a membership plan to get exclusive discounts on spa services.</p>
+  <p *ngIf="hasActiveMembership()">View all available membership plans:</p>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading memberships...</span>
+    </div>
+    <p class="mt-2">Loading memberships...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && memberships.length === 0" class="alert alert-info">
+    <p class="mb-0">No membership plans are currently available.</p>
+  </div>
+
+  <div class="row" *ngIf="!loading && memberships.length > 0">
+    <div class="col-md-4 mb-4" *ngFor="let membership of memberships">
+      <div class="card h-100" [class.border-success]="isActive(membership.id)">
+        <div class="card-body text-center">
+          <h5 class="card-title">{{ membership.name }}</h5>
+          <h3 class="text-primary">${{ membership.pricePerMonth }}/month</h3>
+          <p class="card-text">{{ membership.description }}</p>
+          
+          <div *ngIf="currentUser?.membershipName && getMembershipName(membership.id) === currentUser?.membershipName" class="mb-2">
+            <span class="badge mb-2" 
+                  [ngClass]="{
+                    'bg-success': isActive(membership.id),
+                    'bg-secondary': !isActive(membership.id)
+                  }">
+              {{ isActive(membership.id) ? 'Active' : 'Inactive' }}
+            </span>
+            <p class="text-muted small mb-2">
+              Status: 
+              <span class="badge" 
+                    [ngClass]="{
+                      'bg-success': currentUser?.membershipStatus === 'ACTIVE',
+                      'bg-secondary': currentUser?.membershipStatus === 'INACTIVE' || !currentUser?.membershipStatus
+                    }">
+                {{ currentUser?.membershipStatus || 'INACTIVE' }}
+              </span>
+            </p>
+          </div>
+          
+          <div class="d-flex gap-2 justify-content-center">
+            <!-- Unsubscribe button - shown when membership is ACTIVE -->
+            <button 
+              type="button"
+              *ngIf="isActive(membership.id)"
+              class="btn btn-outline-danger"
+              (click)="unsubscribeFromMembership(membership.id, $event); $event.preventDefault(); $event.stopPropagation()"
+              [disabled]="subscribing || (selectedMembershipId !== null && selectedMembershipId !== membership.id)">
+              <span *ngIf="subscribing && selectedMembershipId === membership.id" class="spinner-border spinner-border-sm me-2"></span>
+              <i *ngIf="!subscribing || selectedMembershipId !== membership.id" class="bi bi-x-circle me-1"></i>
+              Unsubscribe
+            </button>
+            
+            <!-- Subscribe button - shown when membership is INACTIVE or not subscribed (fallback) -->
+            <button 
+              type="button"
+              *ngIf="!isActive(membership.id)"
+              class="btn btn-primary"
+              (click)="subscribeToMembership(membership.id, $event); $event.preventDefault(); $event.stopPropagation()"
+              [disabled]="subscribing || (selectedMembershipId !== null && selectedMembershipId !== membership.id)">
+              <span *ngIf="subscribing && selectedMembershipId === membership.id" class="spinner-border spinner-border-sm me-2"></span>
+              <i *ngIf="!subscribing || selectedMembershipId !== membership.id" class="bi bi-check-circle me-1"></i>
+              Subscribe
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
